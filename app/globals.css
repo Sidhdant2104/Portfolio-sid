@@ -1,0 +1,166 @@
+@import 'tailwindcss';
+
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+
+@theme {
+  --color-paper: #f2efe7;
+  --color-paper-lit: #faf8f2;
+  --color-paper-deep: #e6e1d4;
+  --color-graphite: #23201c;
+  --color-graphite-mid: #4c463e;
+  --color-graphite-soft: #7d7568;
+  --color-graphite-faint: #a9a293;
+  --color-accent: #c1440e;
+
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: 'Instrument Serif', Georgia, serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-paper);
+  color: var(--color-graphite);
+  font-family: var(--font-mono);
+  /* The world is rendered; keeping text crisp matters more than sub-pixel AA. */
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* The custom cursor replaces the pointer everywhere on the desktop experience. */
+body[data-cursor='hidden'],
+body[data-cursor='hidden'] * {
+  cursor: none !important;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+/**
+ * Paper unification pass.
+ *
+ * A single grain-and-vignette layer over the whole viewport, multiplied down.
+ * It is what makes the 3D render and the HTML interface look like they were
+ * printed on the same sheet, and it costs one composited layer rather than a
+ * post-processing pipeline.
+ */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+}
+
+.paper-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+  pointer-events: none;
+  background:
+    radial-gradient(125% 105% at 50% 45%, rgba(255, 255, 255, 0) 52%, rgba(35, 32, 28, 0.13) 100%),
+    linear-gradient(to bottom, rgba(35, 32, 28, 0.05), rgba(0, 0, 0, 0) 22%);
+}
+
+/* Interface type scale. Small, tracked, technical — a caption, not a headline. */
+.ui-micro {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.ui-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* A hand-drawn border, used on interface panels so the UI belongs to the world. */
+.sketch-frame {
+  position: relative;
+  background: rgba(250, 248, 242, 0.94);
+  backdrop-filter: blur(2px);
+}
+
+.sketch-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(35, 32, 28, 0.5);
+  /* Slight asymmetry in the radius reads as a drawn rectangle. */
+  border-radius: 2px 3px 2px 4px / 3px 2px 4px 2px;
+}
+
+.sketch-frame::after {
+  content: '';
+  position: absolute;
+  inset: 2px -1px -1px 2px;
+  pointer-events: none;
+  border: 1px solid rgba(35, 32, 28, 0.16);
+  border-radius: 3px 2px 4px 2px / 2px 4px 2px 3px;
+}
+
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.rule-draw {
+  transform-origin: left center;
+  animation: rule-draw 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+::selection {
+  background: rgba(193, 68, 14, 0.18);
+}
+
+/* Scrollable reading panels keep a thin, unobtrusive bar. */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(35, 32, 28, 0.28) transparent;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(35, 32, 28, 0.24);
+  border-radius: 99px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
